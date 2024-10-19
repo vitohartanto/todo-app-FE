@@ -30,9 +30,12 @@ const ListTodos = ({
 
   const deleteTodo = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/todos/${id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `https://todo-app-be-xi.vercel.app/todos/${id}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
       if (response.ok) {
         // No need to filter again here; it's already done in onDeleteHandler
@@ -44,7 +47,7 @@ const ListTodos = ({
   };
 
   const getTodos = async () => {
-    const response = await fetch('http://localhost:5000/todos');
+    const response = await fetch('https://todo-app-be-xi.vercel.app/todos');
     const parsedJson = await response.json();
     console.log(parsedJson);
     setTodos(parsedJson);
@@ -63,13 +66,16 @@ const ListTodos = ({
   const completeTodo = async (id, currentStatus) => {
     try {
       const body = { completed: !currentStatus }; // Mengirim status completed sebagai true
-      const completeTodo = await fetch(`http://localhost:5000/todos/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+      const completeTodo = await fetch(
+        `https://todo-app-be-xi.vercel.app/todos/${id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        }
+      );
 
       if (completeTodo.ok) {
         // Perbarui state todos setelah berhasil mengubah status di server
@@ -156,7 +162,7 @@ const ListTodos = ({
 
   const updateTodoOrder = async (newTodos) => {
     try {
-      await fetch('http://localhost:5000/todos/reorder', {
+      await fetch('https://todo-app-be-xi.vercel.app/todos/reorder', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

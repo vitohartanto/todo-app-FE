@@ -18,7 +18,7 @@ const InputTodo = ({
 
       if (editMode) {
         // Jika sedang dalam mode edit, lakukan update todo
-        await fetch(`http://localhost:5000/todos/${editMode}`, {
+        await fetch(`https://todo-app-be-xi.vercel.app/todos/${editMode}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ const InputTodo = ({
         setEditMode(null); // Kembali ke mode normal setelah edit selesai
       } else {
         // Jika tidak dalam mode edit, lakukan penambahan todo baru
-        await fetch('http://localhost:5000/todos', {
+        await fetch('https://todo-app-be-xi.vercel.app/todos', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
