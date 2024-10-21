@@ -1,5 +1,13 @@
 import React from 'react';
 
+const devURL = 'http://localhost:5000';
+const prodURL = 'https://todo-app-be-xi.vercel.app';
+
+// Fungsi untuk memilih URL berdasarkan mode environment
+const getBaseURL = () => {
+  return process.env.NODE_ENV === 'development' ? devURL : prodURL;
+};
+
 const InputTodo = ({
   isDarkMode,
   description,
@@ -15,10 +23,11 @@ const InputTodo = ({
     e.preventDefault();
     try {
       const body = { description };
+      const baseURL = getBaseURL(); // Memanggil fungsi untuk mendapatkan URL yang sesuai
 
       if (editMode) {
         // Jika sedang dalam mode edit, lakukan update todo
-        await fetch(`https://todo-app-be-xi.vercel.app/todos/${editMode}`, {
+        await fetch(`${baseURL}/todos/${editMode}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -28,7 +37,7 @@ const InputTodo = ({
         setEditMode(null); // Kembali ke mode normal setelah edit selesai
       } else {
         // Jika tidak dalam mode edit, lakukan penambahan todo baru
-        await fetch('https://todo-app-be-xi.vercel.app/todos', {
+        await fetch(`${baseURL}/todos`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

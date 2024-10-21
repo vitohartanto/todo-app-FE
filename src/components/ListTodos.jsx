@@ -9,6 +9,14 @@ import {
 import SortableItem from './SortableItem';
 import { DragOverlay } from '@dnd-kit/core';
 
+const devURL = 'http://localhost:5000';
+const prodURL = 'https://todo-app-be-xi.vercel.app';
+
+// Fungsi untuk memilih URL berdasarkan mode environment
+const getBaseURL = () => {
+  return process.env.NODE_ENV === 'development' ? devURL : prodURL;
+};
+
 const ListTodos = ({
   description,
   setDescription,
@@ -30,15 +38,11 @@ const ListTodos = ({
 
   const deleteTodo = async (id) => {
     try {
-      const response = await fetch(
-        `https://todo-app-be-xi.vercel.app/todos/${id}`,
-        {
-          method: 'DELETE',
-        }
-      );
+      const response = await fetch(`${getBaseURL()}/todos/${id}`, {
+        method: 'DELETE',
+      });
 
       if (response.ok) {
-        // No need to filter again here; it's already done in onDeleteHandler
         console.log(`Todo with id ${id} deleted successfully.`);
       }
     } catch (error) {
@@ -47,7 +51,7 @@ const ListTodos = ({
   };
 
   const getTodos = async () => {
-    const response = await fetch('https://todo-app-be-xi.vercel.app/todos');
+    const response = await fetch(`${getBaseURL()}/todos`);
     const parsedJson = await response.json();
     console.log(parsedJson);
     setTodos(parsedJson);
@@ -65,20 +69,16 @@ const ListTodos = ({
 
   const completeTodo = async (id, currentStatus) => {
     try {
-      const body = { completed: !currentStatus }; // Mengirim status completed sebagai true
-      const completeTodo = await fetch(
-        `https://todo-app-be-xi.vercel.app/todos/${id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        }
-      );
+      const body = { completed: !currentStatus };
+      const completeTodo = await fetch(`${getBaseURL()}/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
 
       if (completeTodo.ok) {
-        // Perbarui state todos setelah berhasil mengubah status di server
         setTodos((prevTodos) =>
           prevTodos.map((todo) =>
             todo.todo_id === id ? { ...todo, completed: !currentStatus } : todo
@@ -162,7 +162,7 @@ const ListTodos = ({
 
   const updateTodoOrder = async (newTodos) => {
     try {
-      await fetch('https://todo-app-be-xi.vercel.app/todos/reorder', {
+      await fetch(`${getBaseURL()}/todos/reorder`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
