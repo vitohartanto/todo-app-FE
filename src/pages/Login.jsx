@@ -3,6 +3,7 @@ import TopComponent from '../components/TopComponent';
 import { Link, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 const devURL = 'http://localhost:5000';
 const prodURL = 'https://todo-app-be-xi.vercel.app';
@@ -12,13 +13,15 @@ const getBaseURL = () => {
   return import.meta.env.MODE === 'development' ? devURL : prodURL;
 };
 
-const Login = ({ isDarkMode, toggleDarkMode }) => {
+const Login = ({ isDarkMode, toggleDarkMode, onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await fetch(`${getBaseURL()}/login`, {
         method: 'POST',
@@ -29,17 +32,21 @@ const Login = ({ isDarkMode, toggleDarkMode }) => {
       });
 
       const data = await response.json();
+      setLoading(false);
 
       if (response.ok) {
+        toast.success('Login successful!');
         // Simpan token ke local storage
-        localStorage.setItem('token', data.token);
-        // Redirect ke halaman dashboard atau halaman lain setelah berhasil login
-        navigate('/dashboard');
+        localStorage.setItem('token', data.accessToken);
+        onLogin(data.accessToken);
+        // Redirect ke halaman todo-app setelah berhasil login
+        navigate('/');
       } else {
-        toast('Login failed');
+        toast.error(data.msg || 'Login failed');
       }
     } catch (error) {
-      toast('An error occurred during registration');
+      setLoading(false);
+      toast.error('An error occurred during registration');
     }
   };
 
@@ -92,7 +99,7 @@ const Login = ({ isDarkMode, toggleDarkMode }) => {
                 : 'bg-[#e4e5f1] text-[#161722]'
             }`}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </div>
         <p

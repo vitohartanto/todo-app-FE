@@ -1,7 +1,7 @@
 import React from 'react';
 import TopComponent from '../components/TopComponent';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const devURL = 'http://localhost:5000';
@@ -15,10 +15,12 @@ const getBaseURL = () => {
 const Register = ({ isDarkMode, toggleDarkMode }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await fetch(`${getBaseURL()}/register`, {
         method: 'POST',
@@ -29,19 +31,23 @@ const Register = ({ isDarkMode, toggleDarkMode }) => {
       });
 
       const data = await response.json();
+      setLoading(false);
 
       if (response.ok) {
+        toast.success('Registration successful! Redirecting to login...');
         // Simpan token ke local storage
         localStorage.setItem('token', data.token);
-        // Redirect ke halaman dashboard atau halaman lain setelah berhasil register
-        navigate('/dashboard');
+
+        navigate('/login');
       } else {
         toast('Registration failed');
       }
     } catch (error) {
+      setLoading(false);
       toast('An error occurred during registration');
     }
   };
+
   return (
     <div className="flex flex-col items-center ">
       <TopComponent isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
@@ -93,7 +99,7 @@ const Register = ({ isDarkMode, toggleDarkMode }) => {
                 : 'bg-[#e4e5f1] text-[#161722]'
             }`}
           >
-            Register
+            {loading ? 'Registering...' : 'Register'}
           </button>
         </div>
         <p

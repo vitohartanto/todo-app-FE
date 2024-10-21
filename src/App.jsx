@@ -14,7 +14,7 @@ function App() {
   const [description, setDescription] = useState('');
   const [editMode, setEditMode] = useState(null); // Menyimpan ID todo yang sedang diedit
   const [isDarkMode, setIsDarkMode] = useState(true); // State untuk mode
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Fungsi untuk toggle mode
   const toggleDarkMode = () => {
