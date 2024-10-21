@@ -14,7 +14,7 @@ const prodURL = 'https://todo-app-be-xi.vercel.app';
 
 // Fungsi untuk memilih URL berdasarkan mode environment
 const getBaseURL = () => {
-  return process.env.NODE_ENV === 'development' ? devURL : prodURL;
+  return import.meta.env.MODE === 'development' ? devURL : prodURL;
 };
 
 const ListTodos = ({
