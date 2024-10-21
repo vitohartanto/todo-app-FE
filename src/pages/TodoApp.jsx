@@ -10,6 +10,8 @@ const TodoApp = ({
   setDescription,
   editMode,
   setEditMode,
+  onLogout,
+  isAuthenticated,
 }) => {
   return (
     <>
@@ -19,7 +21,12 @@ const TodoApp = ({
           isDarkMode ? 'bg-[#161722]' : 'bg-[#e4e5f1]'
         }`}
       ></div>
-      <TopComponent isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+      <TopComponent
+        isDarkMode={isDarkMode}
+        toggleDarkMode={toggleDarkMode}
+        onLogout={onLogout}
+        isAuthenticated={isAuthenticated}
+      />
       <InputTodo
         description={description}
         setDescription={setDescription}

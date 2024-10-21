@@ -14,7 +14,7 @@ function App() {
   const [description, setDescription] = useState('');
   const [editMode, setEditMode] = useState(null); // Menyimpan ID todo yang sedang diedit
   const [isDarkMode, setIsDarkMode] = useState(true); // State untuk mode
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   // Fungsi untuk toggle mode
   const toggleDarkMode = () => {
@@ -38,14 +38,32 @@ function App() {
       <Router>
         <div>
           <Routes>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route
-              path="/todos"
+              path="/register"
+              element={
+                <Register
+                  isDarkMode={isDarkMode}
+                  toggleDarkMode={toggleDarkMode}
+                />
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <Login
+                  isDarkMode={isDarkMode}
+                  onLogin={handleLogin}
+                  toggleDarkMode={toggleDarkMode}
+                />
+              }
+            />
+            <Route
+              path="/"
               element={
                 isAuthenticated ? (
                   <TodoApp
                     isDarkMode={isDarkMode}
+                    isAuthenticated={isAuthenticated}
                     toggleDarkMode={toggleDarkMode}
                     description={description}
                     setDescription={setDescription}
@@ -58,7 +76,7 @@ function App() {
                 )
               }
             />
-            <Route path="*" element={<Navigate to="/login" />} />
+            {/* <Route path="*" element={<Navigate to="/login" />} /> */}
           </Routes>
         </div>
       </Router>
