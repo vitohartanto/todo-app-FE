@@ -93,6 +93,8 @@ function App() {
     }
   };
 
+  console.log('Mode ni bos');
+  console.log(import.meta.env.MODE);
   return (
     <>
       <div>
