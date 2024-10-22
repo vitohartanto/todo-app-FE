@@ -13,43 +13,16 @@ const getBaseURL = () => {
   return import.meta.env.MODE === 'development' ? devURL : prodURL;
 };
 
-const Login = ({ isDarkMode, toggleDarkMode, onLogin }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await fetch(`${getBaseURL()}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data = await response.json();
-      setLoading(false);
-
-      if (response.ok) {
-        toast.success('Login successful!');
-        // Simpan token ke local storage
-        localStorage.setItem('token', data.accessToken);
-        onLogin(data.accessToken);
-        // Redirect ke halaman todo-app setelah berhasil login
-        navigate('/');
-      } else {
-        toast.error(data.msg || 'Login failed');
-      }
-    } catch (error) {
-      setLoading(false);
-      toast.error('An error occurred during registration');
-    }
-  };
-
+const Login = ({
+  isDarkMode,
+  toggleDarkMode,
+  setIsAuthenticated,
+  onLogin,
+  username,
+  password,
+  setUsername,
+  setPassword,
+}) => {
   return (
     <div className="flex flex-col items-center ">
       <TopComponent isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
@@ -59,7 +32,7 @@ const Login = ({ isDarkMode, toggleDarkMode, onLogin }) => {
         }`}
       />
       <form
-        onClick={handleLogin}
+        onSubmit={(e) => onLogin(e)}
         className={`mt-12  h-[350px] ${
           isDarkMode ? 'bg-[#25273c]' : 'bg-[#fafafa]'
         } w-[327px] flex flex-col rounded-lg items-center justify-center`}
@@ -86,7 +59,7 @@ const Login = ({ isDarkMode, toggleDarkMode, onLogin }) => {
             onChange={(e) => setUsername(e.target.value)}
           />
           <input
-            type="text"
+            type="password"
             className="px-4 py-2 rounded-lg border-[#e4e5f1] border-2"
             placeholder="Password"
             onChange={(e) => setPassword(e.target.value)}
@@ -99,7 +72,7 @@ const Login = ({ isDarkMode, toggleDarkMode, onLogin }) => {
                 : 'bg-[#e4e5f1] text-[#161722]'
             }`}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            Login
           </button>
         </div>
         <p
@@ -116,6 +89,7 @@ const Login = ({ isDarkMode, toggleDarkMode, onLogin }) => {
           </Link>
         </p>
       </form>
+      <Toaster />
     </div>
   );
 };

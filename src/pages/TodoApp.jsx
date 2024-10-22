@@ -2,6 +2,7 @@ import React from 'react';
 import TopComponent from '../components/TopComponent';
 import InputTodo from '../components/InputTodo';
 import ListTodos from '../components/ListTodos';
+import { useState } from 'react';
 
 const TodoApp = ({
   isDarkMode,
@@ -12,7 +13,9 @@ const TodoApp = ({
   setEditMode,
   onLogout,
   isAuthenticated,
+  username,
 }) => {
+  const [todos, setTodos] = useState([]);
   return (
     <>
       {' '}
@@ -26,6 +29,7 @@ const TodoApp = ({
         toggleDarkMode={toggleDarkMode}
         onLogout={onLogout}
         isAuthenticated={isAuthenticated}
+        username={username}
       />
       <InputTodo
         description={description}
@@ -33,12 +37,15 @@ const TodoApp = ({
         editMode={editMode}
         setEditMode={setEditMode}
         isDarkMode={isDarkMode}
+        setTodos={setTodos}
       />
       <ListTodos
         description={description}
         setDescription={setDescription}
         setEditMode={setEditMode}
         isDarkMode={isDarkMode}
+        todos={todos}
+        setTodos={setTodos}
       />
       ;
     </>

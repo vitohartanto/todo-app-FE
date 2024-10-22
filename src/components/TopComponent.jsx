@@ -11,6 +11,7 @@ const TopComponent = ({
   toggleDarkMode,
   onLogout,
   isAuthenticated,
+  username,
 }) => {
   return (
     <div className="flex justify-center">
@@ -44,7 +45,7 @@ const TopComponent = ({
           />
         ) : (
           <FaMoon
-            style={{ color: '#484b6a', fontSize: '20px' }}
+            style={{ color: '#fff', fontSize: '20px' }}
             onClick={() => {
               toggleDarkMode();
             }}
@@ -56,7 +57,7 @@ const TopComponent = ({
             className="flex items-center p-2 border-2 border-white rounded-lg gap-x-4"
             onClick={onLogout}
           >
-            <p className="text-lg text-white">Vito</p>
+            <p className="text-lg text-white">{username}</p>
             <FaSignOutAlt style={{ color: '#ffffff' }} />
           </button>
         )}

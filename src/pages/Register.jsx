@@ -31,12 +31,11 @@ const Register = ({ isDarkMode, toggleDarkMode }) => {
       });
 
       const data = await response.json();
+
       setLoading(false);
 
       if (response.ok) {
         toast.success('Registration successful! Redirecting to login...');
-        // Simpan token ke local storage
-        localStorage.setItem('token', data.token);
 
         navigate('/login');
       } else {
@@ -85,7 +84,7 @@ const Register = ({ isDarkMode, toggleDarkMode }) => {
             onChange={(e) => setUsername(e.target.value)}
           />
           <input
-            type="text"
+            type="password"
             className="px-4 py-2 rounded-lg border-[#e4e5f1] border-2"
             placeholder="Password"
             value={password}

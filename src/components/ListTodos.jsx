@@ -22,8 +22,9 @@ const ListTodos = ({
   setDescription,
   setEditMode,
   isDarkMode,
+  todos,
+  setTodos,
 }) => {
-  const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState('All'); // Menyimpan filter yang dipilih
   const [activeId, setActiveId] = useState(null); // Untuk menyimpan item yang sedang di-drag
   const [isDragging, setIsDragging] = useState(false);
@@ -37,24 +38,75 @@ const ListTodos = ({
   };
 
   const deleteTodo = async (id) => {
-    try {
-      const response = await fetch(`${getBaseURL()}/todos/${id}`, {
-        method: 'DELETE',
-      });
+    let accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      try {
+        const response = await fetch(`${getBaseURL()}/todos/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
-      if (response.ok) {
-        console.log(`Todo with id ${id} deleted successfully.`);
+        if (response.ok) {
+          console.log(`Todo with id ${id} deleted successfully.`);
+        }
+      } catch (error) {
+        console.error(error.message);
       }
-    } catch (error) {
-      console.error(error.message);
     }
   };
 
   const getTodos = async () => {
-    const response = await fetch(`${getBaseURL()}/todos`);
-    const parsedJson = await response.json();
-    console.log(parsedJson);
-    setTodos(parsedJson);
+    let accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (!accessToken && refreshToken) {
+      try {
+        const response = await fetch(`${getBaseURL()}/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refreshToken }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          accessToken = data.accessToken;
+          localStorage.setItem('accessToken', accessToken);
+        } else {
+          // Handle refresh token errors (e.g., token expired or invalid)
+          console.error(data.msg || 'Failed to refresh access token');
+          return;
+        }
+      } catch (error) {
+        console.error('Error refreshing access token:', error);
+        return;
+      }
+    }
+
+    if (accessToken) {
+      try {
+        const response = await fetch(`${getBaseURL()}/todos`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTodos(data);
+        } else {
+          console.error('Failed to fetch todos:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching protected data:', error);
+      }
+    }
   };
 
   useEffect(() => {
@@ -68,25 +120,31 @@ const ListTodos = ({
   };
 
   const completeTodo = async (id, currentStatus) => {
-    try {
-      const body = { completed: !currentStatus };
-      const completeTodo = await fetch(`${getBaseURL()}/todos/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+    let accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      try {
+        const body = { completed: !currentStatus };
+        const completeTodo = await fetch(`${getBaseURL()}/todos/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(body),
+        });
 
-      if (completeTodo.ok) {
-        setTodos((prevTodos) =>
-          prevTodos.map((todo) =>
-            todo.todo_id === id ? { ...todo, completed: !currentStatus } : todo
-          )
-        );
+        if (completeTodo.ok) {
+          setTodos((prevTodos) =>
+            prevTodos.map((todo) =>
+              todo.todo_id === id
+                ? { ...todo, completed: !currentStatus }
+                : todo
+            )
+          );
+        }
+      } catch (error) {
+        console.error(error.message);
       }
-    } catch (error) {
-      console.error(error.message);
     }
   };
 
@@ -97,6 +155,9 @@ const ListTodos = ({
       for (let todo of completedTodos) {
         await deleteTodo(todo.todo_id);
       }
+
+      // Perbarui state todos dengan data terbaru
+      setTodos((prevTodos) => prevTodos.filter((todo) => !todo.completed));
     } catch (error) {
       console.error(error.message);
     }
@@ -152,27 +213,27 @@ const ListTodos = ({
 
         const newTodos = arrayMove(prevTodos, oldIndex, newIndex);
 
-        // Kirim urutan baru ke server
-        updateTodoOrder(newTodos);
+        // // Kirim urutan baru ke server
+        // updateTodoOrder(newTodos);
 
         return newTodos;
       });
     }
   };
 
-  const updateTodoOrder = async (newTodos) => {
-    try {
-      await fetch(`${getBaseURL()}/todos/reorder`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ todos: newTodos }),
-      });
-    } catch (error) {
-      console.error('Error updating order:', error.message);
-    }
-  };
+  // const updateTodoOrder = async (newTodos) => {
+  //   try {
+  //     await fetch(`${getBaseURL()}/todos/reorder`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ todos: newTodos }),
+  //     });
+  //   } catch (error) {
+  //     console.error('Error updating order:', error.message);
+  //   }
+  // };
   return (
     <div className="flex flex-col items-center ">
       <div className="rounded-lg z-[2] overflow-hidden ">

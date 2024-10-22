@@ -14,6 +14,7 @@ const InputTodo = ({
   setDescription,
   editMode,
   setEditMode,
+  setTodos,
 }) => {
   const onChangeHandler = (e) => {
     setDescription(e.target.value);
@@ -21,35 +22,55 @@ const InputTodo = ({
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    try {
-      const body = { description };
-      const baseURL = getBaseURL(); // Memanggil fungsi untuk mendapatkan URL yang sesuai
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      try {
+        const body = { description };
+        let newTodo;
+        let updatedTodo;
+        const baseURL = getBaseURL(); // Memanggil fungsi untuk mendapatkan URL yang sesuai
 
-      if (editMode) {
-        // Jika sedang dalam mode edit, lakukan update todo
-        await fetch(`${baseURL}/todos/${editMode}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        });
-        setEditMode(null); // Kembali ke mode normal setelah edit selesai
-      } else {
-        // Jika tidak dalam mode edit, lakukan penambahan todo baru
-        await fetch(`${baseURL}/todos`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        });
+        if (editMode) {
+          // Jika sedang dalam mode edit, lakukan update todo
+
+          const response = await fetch(`${baseURL}/todos/${editMode}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(body),
+          });
+
+          setEditMode(null); // Kembali ke mode normal setelah edit selesai
+
+          updatedTodo = await response.json(); // Ambil data todo baru dari respons
+
+          // Perbarui state todos dengan todo terbaru
+          setTodos((prevTodos) =>
+            prevTodos.map((todo) =>
+              todo.todo_id === updatedTodo.todo_id ? updatedTodo : todo
+            )
+          );
+        } else {
+          // Jika tidak dalam mode edit, lakukan penambahan todo baru
+          const response = await fetch(`${baseURL}/todos`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(body),
+          });
+
+          newTodo = await response.json(); // Ambil data todo baru dari respons
+          // Perbarui state todos dengan menambahkan todo baru
+          setTodos((prevTodos) => [...prevTodos, newTodo]);
+        }
+        setDescription(''); // Reset input setelah submit
+      } catch (error) {
+        console.error(error.message);
       }
-
-      setDescription(''); // Reset input setelah submit
-      window.location = '/';
-    } catch (error) {
-      console.error(error.message);
     }
   };
 
